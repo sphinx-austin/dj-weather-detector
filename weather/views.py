@@ -2,25 +2,39 @@ from django.shortcuts import render
 import json
 import urllib.request
 
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
+
 # Create your views here.
+
+
 def index(request):
+    # api_key
+    # api_key = os.getenv('API_KEY')
     """
     collect data from the html form
     """
     if request.method == 'POST':
+        # fetch city from template
         city = request.POST.get('city')
-        # res = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/weather?q='+city+'@appid=f47c3ab0eae2e8f11bdbf2be339e4112').read()
-        res = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/weather?q='+city+'&APPID=f47c3ab0eae2e8f11bdbf2be339e4112').read()
+        # api_key from .env
+        api_key = os.getenv('API_KEY')
+        # query the api endpoint
+        res = urllib.request.urlopen(
+            'http://api.openweathermap.org/data/2.5/weather?q='+city+'&APPID='+api_key).read()
         json_data = json.loads(res)
         data = {
-            "country_code" : str(json_data['sys']['country']),
-            "coordinate" : str(json_data['coord']['lon']) + ' ' + str(json_data['coord']['lat']),
-            "temperature" : str(json_data['main']['temp']) + 'k',
-            "pressure" : str(json_data['main']['pressure']),
-            "humidity" : str(json_data['main']['humidity']),
+            "country_code": str(json_data['sys']['country']),
+            "coordinate": str(json_data['coord']['lon']) + ' ' + str(json_data['coord']['lat']),
+            "temperature": str(json_data['main']['temp']) + 'k',
+            "pressure": str(json_data['main']['pressure']),
+            "humidity": str(json_data['main']['humidity']),
         }
     else:
         city = ''
         data = {}
 
-    return render(request, 'weather/index.html', {'city':city, 'data':data})
+    return render(request, 'weather/index.html', {'city': city, 'data': data})
